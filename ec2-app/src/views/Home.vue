@@ -7,7 +7,7 @@
       <h1>EC2</h1>
       <!-- <HelloWorld msg="Welcome to Your Vue.js App"/> -->
     </div>
-    <instance-filter :items="instances"></instance-filter>
+    <instance-filter :items="instancesNames"></instance-filter>
     <instance-list></instance-list>
    </section>
 </template>
@@ -22,11 +22,12 @@ export default {
   name: 'home',
 
   computed: {
-    instances() {
+    instancesNames() {
       var instances = this.$store.getters.getInstances
       var items = []
       for (let i =0; i<instances.length; i++) {
-        items.push(instances[i].type)
+        if (items.includes(instances[i].type)) continue;
+        else items.push(instances[i].type);
       }
       return items
     },
