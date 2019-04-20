@@ -1,10 +1,33 @@
 import axios from 'axios';
-import data from '../../data.js'
+
+const BASE_URL = (process.env.NODE_ENV !== 'development')? 
+                '/api/data' : 'http://localhost:3003/api/data';
+
+
 
 var url = 'https://spot-price.s3.amazonaws.com/spotblocks-generic.json'
 
-
 function query(filter = '') {
+    return axios.get(`${BASE_URL}`)
+    .then(res => {
+         
+        var instancesToReturn = [];
+         for (let i = 0; i < res.data.config.regions.length; i++) {
+            let temp = res.data.config.regions[i].instanceTypes;
+            for (let j = 0; j < temp.length; j++) {
+                temp[j]['region'] = res.data.config.regions[i].region
+                instancesToReturn.push(temp[j])
+            }
+        }
+        if (filter.length > 0) {
+            instancesToReturn = _filter(filter, instancesToReturn)
+        }
+
+        return instancesToReturn
+    })
+}
+
+function _queryBackup(filter = '') {
     return new Promise((resolve, reject) => {
         var instancesToReturn = [];
         for (let i = 0; i < instances.length; i++) {
