@@ -1,6 +1,6 @@
 <template>
     <section>
-        <instance-preview v-for="instance in instances" :instance="instance"></instance-preview>
+        <instance-preview v-for="instance in instances" :instance="instance" :key="instance.region+instance.type+instance.sizes.length"></instance-preview>
     </section> 
 </template>
 

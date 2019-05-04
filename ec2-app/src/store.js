@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import instanceService from './services/instanceService.js'
 
 Vue.use(Vuex)
 
@@ -11,38 +10,36 @@ export default new Vuex.Store({
     isLoading: false
   },
   getters: {
+
     getInstances(state) {
-      return state.instances;
-    },
+      let term = new RegExp(state.filter, 'i')
+      return state.instances.filter(instance => {
+          return instance.type.match(term)
+      })
+  },
+
     getFilter(state) {
       return state.filter;
     },
 
   },
   mutations: {
-    setInstances(state, { instances }) {
-      state.instances = instances;
+
+    setInstances(state, payload) {
+      state.instances = payload;
     },
     setLoading(state, {isLoading}) {
       state.isLoading = isLoading;
-      console.log('DEBUG:store-setLoading:isLoading', isLoading);
+      // console.log('DEBUG:store-setLoading:isLoading', isLoading);
     },
     setFilter(state, {filter}) {
       state.filter = filter;
-
-      // console.log(filter)
-
-
     }
   },
   actions: {
+
     loadFilter(context,  {filter}) {
       context.commit({ type: 'setFilter', filter });
-      context.dispatch({ type: 'loadInstances' });
-    },
-
-    setLoading(context, {isLoading}) {
-      context.commit({ type: 'setLoading', isLoading });
     },
 
     setLoading(context, {isLoading}) {
@@ -51,18 +48,6 @@ export default new Vuex.Store({
 
     setFilter(context,{filter}) {
       context.commit({ type: 'setFilter', filter });
-    },
-
-    loadInstances(context) {
-      console.log('loading instances...');
-      context.dispatch({ type: 'setLoading', isLoading: true});
-      
-
-      return instanceService.query(context.state.filter)
-        .then(instances => {
-          context.commit({ type: 'setInstances', instances });
-          context.dispatch({ type: 'setLoading', isLoading: false});
-        })
     },
   }
 })

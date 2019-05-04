@@ -1,9 +1,7 @@
 <template>
     <section>
-        <!-- <h3>{{instance.type}}, {{instance.region}} <span><i class="fas fa-play"></i></span></h3> -->
         <h3>{{instance.type}}, {{instance.region}}</h3>
-        <!-- <h6>{{instancePrices}}</h6> -->
-        <h6 v-for="size in instance.sizes">{{size.size}}: price for 1h {{size.valueColumns[0].prices.USD}}$ price for 6h {{size.valueColumns[1].prices.USD}}$</h6>
+        <h6 v-for="size in instance.sizes" :key="size.size+size.valueColumns.length">{{size.size}}: price for 1h {{size.valueColumns[0].prices.USD}}$ price for 6h {{size.valueColumns[1].prices.USD}}$</h6>
     </section>
 </template>
 
@@ -17,7 +15,6 @@ export default {
   }, 
   computed: {
       instancePrices() {
-        //   console.log(this.instance)
           for (let i =0; i<this.instance.sizes.length; i++) {
               let size = this.instance.sizes[i]
               return `${size.size} price for 1h ${size.valueColumns[0].prices.USD} price for 6h ${size.valueColumns[1].prices.USD}`
@@ -30,7 +27,6 @@ export default {
 <style scoped>
     h3{
         margin: 10px;
-        /* cursor: pointer; */
     }
     h6 {
         margin-left:50px;

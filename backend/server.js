@@ -1,37 +1,37 @@
 const express = require('express');
 const cors = require('cors');
-const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
-const session = require('express-session');
-
-const history = require('connect-history-api-fallback');
-
 const app = express()
-const http = require('http').Server(app);
+const http = require('http').Server(app)
 
-const fs = require('fs');
+const fs = require('fs')
 
-const https = require('https');
-const prices = new URL('https://spot-price.s3.amazonaws.com/spotblocks-generic.js');
+const https = require('https')
+const prices = new URL('https://spot-price.s3.amazonaws.com/spotblocks-generic.js')
 
 app.use(cors({
   origin: ['http://localhost:8080'],
   credentials: true // enable set cookie
 }));
 
-var tmp_json = {};
-var data = {};
-var gCounter = 0;
+
+var dataInterval = setInterval(function(){
+  getData()
+},60000)
+
+function counter() {
+  var files = fs.readdirSync('./data');
+  return files.length-1
+}
+
 
 function getData() {
+  var tmp_json = {};
+  var data = {};
   var req1 = new Promise((resolve, reject) => {
     https.get(prices, (resp) => {
       let data = '';
-  
-  
       resp.on('data', (chunk) => {
         data += chunk;
-        
       });
   
       resp.on('end', () => {
@@ -48,55 +48,31 @@ function getData() {
       reject(error)
     });
   });
-  
-   
-  
+
   Promise.all([ req1]).then(() => {
     data = JSON.stringify(tmp_json);
-    fs.writeFile(`./data/data-v${gCounter}.json`, data, function(err, result) {
-      gCounter ++;
-  
+    fs.writeFile(`./data/data-v${counter()+1}.json`, data, function(err, result) {
       if(err) console.log('error', err);
     });
   })
 }
 
 
-var dataInterval = setInterval(function(){
-  getData()
-},60000)
-
-
-
 app.get('/api/data', (req, res) => {
 
-  fs.readFile( `./data/data-v${gCounter}.json`, 'utf8', function (err, data) {
+  fs.readFile( `./data/data-v${counter()}.json`, 'utf8', function (err, data) {
       res.header("Access-Control-Allow-Origin", "http://localhost:8080");
       res.send(data);
       res.end( data );
-  });
+  })
+})
 
-});
-
-
-app.use(bodyParser.json())
-app.use(cookieParser());
-app.use(session({
-  secret: 'vue app',
-  resave: false,
-  saveUninitialized: true,
-  cookie: {
-    secure: false,
-    expires: 600000
-  }
-}))
 
 app.get('/api/data', function (req, res, next) {
   res.json({msg: 'This is CORS-enabled for all origins!'})
 })
 
 
-app.use(history());
 app.use(express.static('public'));
 app.use(express.json());
 
